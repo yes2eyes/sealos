@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"github.com/fanux/sealos/install"
 	"github.com/spf13/cobra"
+	"github.com/wonderivan/logger"
+	"os"
 )
 
 var contact = `
@@ -50,6 +52,18 @@ var initCmd = &cobra.Command{
 		c.Dump("")
 		fmt.Println(contact)
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if len(install.MasterIPs) == 0 {
+			logger.Error("this command is init feature,master can't is  empty.please check your command is ok?")
+			cmd.Help()
+			os.Exit(0)
+		}
+		if install.PkgUrl == "" {
+			logger.Error("your pkg-url is empty,please check your command is ok?")
+			cmd.Help()
+			os.Exit(0)
+		}
+	},
 }
 
 func init() {
@@ -81,6 +95,8 @@ func init() {
 
 	initCmd.Flags().StringVar(&install.LvscareImage.Image, "lvscare-image", "fanux/lvscare", "lvscare image name")
 	initCmd.Flags().StringVar(&install.LvscareImage.Tag, "lvscare-tag", "latest", "lvscare image tag name")
+
+	initCmd.Flags().IntVar(&install.Vlog, "vlog", 0, "kubeadm log level")
 
 	// 不像用户暴露
 	// initCmd.Flags().StringVar(&install.CertPath, "cert-path", "/root/.sealos/pki", "cert file path")
